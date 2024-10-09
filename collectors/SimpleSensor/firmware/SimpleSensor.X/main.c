@@ -45,7 +45,7 @@
 #define TX TRISC6
 #define DEBUG_SWITCH RB5
 #define BAUD 9600
-#define DIVIDER (_XTAL_FREQ / ((16UL * BAUD) - 1)) //Based off manual
+#define DIVIDER (_XTAL_FREQ / ((4UL * BAUD) - 1)) //Based off manual
 
 #define LORA_ADDRESS 1
 
@@ -62,7 +62,7 @@ void initializePIC(void) {
     
     // Set input/output
     TRISA = 0x00;
-    TRISB = 0b00100000; // Set RB0 to input for Debug Switch
+    TRISB = 0b00100000; // Set RB5 to input for Debug Switch
     TRISC = 0x00;
     PORTA = 0x00;
     PORTB = 0x00;
@@ -71,7 +71,7 @@ void initializePIC(void) {
     ANSELB = 0x00;
    
     WPUE = 0; //Enable Weak Pull-ups
-    WPUB0 = 1; // Set RB0 as a Weak Pull-Up
+    WPUB0 = 1; // Set RB5 as a Weak Pull-Up
     
     // Watchdog scaler of 0b10000 - 1:2097152 (64 seconds)
     // Watchdog scaler of 0b01100 - 1:131072 (4 seconds)
