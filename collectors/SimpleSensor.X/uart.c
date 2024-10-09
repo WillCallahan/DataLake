@@ -34,7 +34,7 @@ void putch(char byte)
 }
 
 void putPhrase(char phrase[], unsigned int length) {
-    for (unsigned int i = 0; i < length; i++) {
+    for (unsigned int i = 0; i != length; i++) {
         putch(phrase[i]);
     }
 }

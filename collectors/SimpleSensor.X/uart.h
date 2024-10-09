@@ -9,9 +9,9 @@
 #define _SERIAL_H_
 
 volatile struct USART_STATUS {
-    unsigned ERR : 1;
-    unsigned READING : 1;
-    unsigned WRITING : 1;
+    volatile unsigned ERR : 1;
+    volatile unsigned READING : 1;
+    volatile unsigned WRITING : 1;
 } uart_status;
 
 /**

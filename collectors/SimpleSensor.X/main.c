@@ -34,15 +34,16 @@
 #pragma config BORV = LO        // Brown-out Reset Voltage (low)
 #pragma config LVP = ON         // Low-Voltage Programming enabled
 
-//#pragma config IDLOC0 0 // Device ID A
-//#pragma config IDLOC1 0 // Device ID B
-//#pragma config IDLOC2 0 // Software Revision A
-//#pragma config IDLOC3 0 // Software Revision B
+#pragma config IDLOC0 = 0 // Device ID A
+#pragma config IDLOC1 = 0 // Device ID B
+#pragma config IDLOC2 = 0 // Software Revision A
+#pragma config IDLOC3 = 0 // Software Revision B
 
 //#define _XTAL_FREQ 31250
 #define _XTAL_FREQ 4000000
 #define RX TRISC7
 #define TX TRISC6
+#define DEBUG_SWITCH RB5
 #define BAUD 9600
 #define DIVIDER (_XTAL_FREQ / ((16UL * BAUD) - 1)) //Based off manual
 
@@ -55,20 +56,22 @@
 
 void initializePIC(void) {
     // Setup oscillator
-//    OSCCONbits.IRCF = 0b0010; // 31.25 kHz MF
     OSCCONbits.IRCF = 0b1101; // 4 MHz HF
     OSCCONbits.SCS = 0b10; // Internal oscillator
     OSCCONbits.SPLLEN = 0; // Disable 4x PLL Clock Multiplier
     
     // Set input/output
     TRISA = 0x00;
-    TRISB = 0x00;
+    TRISB = 0b00100000; // Set RB0 to input for Debug Switch
     TRISC = 0x00;
     PORTA = 0x00;
     PORTB = 0x00;
     PORTC = 0x00;
     ANSELA = 0x00;
     ANSELB = 0x00;
+   
+    WPUE = 0; //Enable Weak Pull-ups
+    WPUB0 = 1; // Set RB0 as a Weak Pull-Up
     
     // Watchdog scaler of 0b10000 - 1:2097152 (64 seconds)
     // Watchdog scaler of 0b01100 - 1:131072 (4 seconds)
@@ -79,7 +82,7 @@ void initializePIC(void) {
 void initializeUsart() {
     TX = 0;
     RX = 1;
-//    SPBRG = DIVIDER;
+// TODO   SPBRG = DIVIDER;
     SPBRG = 8; // TESTING for 4MHz
     
     SYNC = 0; // Use Asynchronous Mode
@@ -104,11 +107,30 @@ void __interrupt() ISR(void) {
     handleUsartInterrupt(USART_SUCCESS_READ_HANDLER);
 }
 
+void blinkLedTimes(int times) {
+    __delay_ms(1000);
+    for (int i = 0; i != times; i++) {
+        RA0 = 1;
+        __delay_ms(500);
+        RA0 = 0;
+        __delay_ms(500);
+        CLRWDT();
+    }
+}
+
+void blinkLedStatus() {
+    RA0 = 0;
+    if (lora_status.LORA_ERROR_CODE) {
+        blinkLedTimes(2);
+    }
+    if (uart_status.ERR) {
+        blinkLedTimes(3);
+    }
+}
+
 void main(void) {
     initializePIC();
     initializeUsart();
-    __delay_ms(1000);
-    CLRWDT();
     initializeLora(putPhrase, LORA_ADDRESS);
     
     char outputBuffer[8];
@@ -119,7 +141,9 @@ void main(void) {
     int temperature = INT16_MIN;
     
     while (1) {
-        RA0 = !RA0; // Blink an LED for status
+        if (DEBUG_SWITCH == 1) {
+            RA0 = 1; // Blink an LED for status
+        }
         temperature = readTemperature();
         CLRWDT();
         if (temperature != INT16_MIN) {
@@ -134,8 +158,11 @@ void main(void) {
             sendData(putPhrase, LORA_ADDRESS, outputBuffer);
         }
         
-//        __delay_ms(1000);
-//        CLRWDT();
+        if (DEBUG_SWITCH == 1) {
+            blinkLedStatus();
+            RA0 = 0;
+        }
+        
         sleepLora(putPhrase);
         SLEEP();
         NOP();

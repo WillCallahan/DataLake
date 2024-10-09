@@ -11,7 +11,7 @@
 #include "string.h"
 
 void initializeArrayStringWithNul(char *result, size_t size) {
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i != size; i++) {
         result[i] = '\0';
     }
 }
@@ -23,7 +23,7 @@ __bit strconcat(char *result, size_t size, int num, ...) {
 
     initializeArrayStringWithNul(result, size);
 
-    for (int i = 0; i < num; i++) {
+    for (int i = 0; i != num; i++) {
         const char *str = va_arg(args, const char*);
 
         // Check if we can fit the new string into result
@@ -40,7 +40,7 @@ __bit strconcat(char *result, size_t size, int num, ...) {
 }
 
 __bit strcompare(char *a, volatile char b[], size_t length) {
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i != length; i++) {
         if (a[i] != b[i]) {
             return 0;
         }
