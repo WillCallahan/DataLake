@@ -1,67 +1,15 @@
-/* Microchip Technology Inc. and its subsidiaries.  You may use this software 
- * and any derivatives exclusively with Microchip products. 
- * 
- * THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS".  NO WARRANTIES, WHETHER 
- * EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED 
- * WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A 
- * PARTICULAR PURPOSE, OR ITS INTERACTION WITH MICROCHIP PRODUCTS, COMBINATION 
- * WITH ANY OTHER PRODUCTS, OR USE IN ANY APPLICATION. 
- *
- * IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE, 
- * INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND 
- * WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS 
- * BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE.  TO THE 
- * FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL LIABILITY ON ALL CLAIMS 
- * IN ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF 
- * ANY, THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
- *
- * MICROCHIP PROVIDES THIS SOFTWARE CONDITIONALLY UPON YOUR ACCEPTANCE OF THESE 
- * TERMS. 
- */
-
 /* 
- * File:   
- * Author: 
- * Comments:
- * Revision history: 
+ * File: Lora.c
+ * Author: William Callahan
+ * Comments: EUSART Communication with the RYLR998
+ * Revision history:
+ * - Initial Support 
  */
 
-// This is a guard condition so that contents of this file are not included
-// more than once.  
 #ifndef _LORA_HEADER_TEMPLATE_H_
 #define	_LORA_HEADER_TEMPLATE_H_
 
-#include <xc.h> // include processor files - each processor file is guarded.  
-
-// TODO Insert appropriate #include <>
-
-// TODO Insert C++ class definitions if appropriate
-
-// TODO Insert declarations
-
-// Comment a function and leverage automatic documentation with slash star star
-/**
-    <p><b>Function prototype:</b></p>
-  
-    <p><b>Summary:</b></p>
-
-    <p><b>Description:</b></p>
-
-    <p><b>Precondition:</b></p>
-
-    <p><b>Parameters:</b></p>
-
-    <p><b>Returns:</b></p>
-
-    <p><b>Example:</b></p>
-    <code>
- 
-    </code>
-
-    <p><b>Remarks:</b></p>
- */
-// TODO Insert declarations or function prototypes (right here) to leverage 
-// live documentation
+#include <xc.h>
 
 #ifdef	__cplusplus
 extern "C" {
@@ -70,7 +18,7 @@ extern "C" {
     // TODO If C++ is being used, regular C code needs function names to have C 
     // linkage so the functions can be used by the c code. 
     
-    // region Lora AT Commands
+    // Lora AT Commands
     // All tokens follow the L(TYPE)_(TEXT) syntax
     // TYPE may be one of the following
     // <ul>
@@ -83,13 +31,10 @@ extern "C" {
     //      <li>E - Error response code</li>
     //      <li>V - Constant value</li>
     // </ul>
-    // endregion
 
     
 #define LC_AT "AT"
 #define LR_OK "+OK"
-// Skip the "AT" portion in the response when comparing the command send and the response
-#define LR_COMMAND_OFFSET_INDEX 1
     
 #define LC_RESET "AT+RESET"
 #define LR_RESET_RST "+RESET"
@@ -224,25 +169,62 @@ extern "C" {
     static volatile short LORA_PARSE_INDEX;
     static volatile char LORA_R_DATA[LORA_DATA_BUFFER_SIZE];
     
+    /**
+     * Handles an interrupt for an incoming message from the transceiver
+     * @param data Character from receiver
+     */
     void handleInterrupt(unsigned char data);
     
+    /**
+     * Whether parsing has completed based on possible response codes
+     * @return If the parsing is complete
+     */
     __bit isCompleteParse();
     
+    /**
+     * Whether an error occurred during parsing of a response
+     * @return If there was an error during parsing
+     */
     __bit isErrorParse();
     
+    /**
+     * Gets the decoded error code provided from the Lora transceiver
+     * @return 
+     */
     char getErrorCode();
     
+    /**
+     * Sends NUL terminated data to a target Lora Address
+     * 
+     * @param transmit Function used to transmit data
+     * @param address Address of the target Lora device
+     * @param data Data to send, terminated with the NUL character
+     */
     void sendData(transmitData transmit, char address, char data[]);
     
+    /**
+     * Puts the Lora transceiver in sleep mode for power savings
+     * @param transmit Function used to transmit data
+     */
     void sleepLora(transmitData transmit);
     
+    /**
+     * Wakes the Lora transceiver from sleep mode to be able to transmit
+     * @param transmit Function used to transmit
+     */
     void wakeLora(transmitData transmit);
     
+    /**
+     * Initializes the Lora transceiver
+     * 
+     * @param transmit Function used to transmit
+     * @param address Address of this device
+     */
     void initializeLora(transmitData transmit, char address);
     
 #ifdef	__cplusplus
 }
 #endif /* __cplusplus */
 
-#endif	/* XC_HEADER_TEMPLATE_H */
+#endif	/* _LORA_HEADER_TEMPLATE_H_ */
 
