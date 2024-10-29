@@ -9,6 +9,7 @@
 #include <xc.h>
 #include <string.h>
 #include <stdio.h>
+#include "settings.h"
 #include "lora.h"
 #include "string.h"
 

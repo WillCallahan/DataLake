@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=uart.c main.c lora.c string.c
+SOURCEFILES_QUOTED_IF_SPACED=uart.c main.c lora.c string.c sensors.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/uart.p1 ${OBJECTDIR}/main.p1 ${OBJECTDIR}/lora.p1 ${OBJECTDIR}/string.p1
-POSSIBLE_DEPFILES=${OBJECTDIR}/uart.p1.d ${OBJECTDIR}/main.p1.d ${OBJECTDIR}/lora.p1.d ${OBJECTDIR}/string.p1.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/uart.p1 ${OBJECTDIR}/main.p1 ${OBJECTDIR}/lora.p1 ${OBJECTDIR}/string.p1 ${OBJECTDIR}/sensors.p1
+POSSIBLE_DEPFILES=${OBJECTDIR}/uart.p1.d ${OBJECTDIR}/main.p1.d ${OBJECTDIR}/lora.p1.d ${OBJECTDIR}/string.p1.d ${OBJECTDIR}/sensors.p1.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/uart.p1 ${OBJECTDIR}/main.p1 ${OBJECTDIR}/lora.p1 ${OBJECTDIR}/string.p1
+OBJECTFILES=${OBJECTDIR}/uart.p1 ${OBJECTDIR}/main.p1 ${OBJECTDIR}/lora.p1 ${OBJECTDIR}/string.p1 ${OBJECTDIR}/sensors.p1
 
 # Source Files
-SOURCEFILES=uart.c main.c lora.c string.c
+SOURCEFILES=uart.c main.c lora.c string.c sensors.c
 
 
 
@@ -120,6 +120,14 @@ ${OBJECTDIR}/string.p1: string.c  nbproject/Makefile-${CND_CONF}.mk
 	@-${MV} ${OBJECTDIR}/string.d ${OBJECTDIR}/string.p1.d 
 	@${FIXDEPS} ${OBJECTDIR}/string.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
+${OBJECTDIR}/sensors.p1: sensors.c  nbproject/Makefile-${CND_CONF}.mk 
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/sensors.p1.d 
+	@${RM} ${OBJECTDIR}/sensors.p1 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -D__DEBUG=1  -mdebugger=pickit3   -mdfp="${DFP_DIR}/xc8"  -fno-short-double -fno-short-float -O0 -fasmfile -maddrqual=ignore -mchp-stack-usage -xassembler-with-cpp -mwarn=-3 -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx32 -Wl,--data-init -mno-keep-startup -mno-osccal -mno-resetbits -mno-save-resetbits -mno-download -mno-stackcall -mno-default-config-bits $(COMPARISON_BUILD)  -std=c99 -gdwarf-3 -mstack=compiled:auto:auto     -o ${OBJECTDIR}/sensors.p1 sensors.c 
+	@-${MV} ${OBJECTDIR}/sensors.d ${OBJECTDIR}/sensors.p1.d 
+	@${FIXDEPS} ${OBJECTDIR}/sensors.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
+	
 else
 ${OBJECTDIR}/uart.p1: uart.c  nbproject/Makefile-${CND_CONF}.mk 
 	@${MKDIR} "${OBJECTDIR}" 
@@ -152,6 +160,14 @@ ${OBJECTDIR}/string.p1: string.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c   -mdfp="${DFP_DIR}/xc8"  -fno-short-double -fno-short-float -O0 -fasmfile -maddrqual=ignore -mchp-stack-usage -xassembler-with-cpp -mwarn=-3 -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx32 -Wl,--data-init -mno-keep-startup -mno-osccal -mno-resetbits -mno-save-resetbits -mno-download -mno-stackcall -mno-default-config-bits $(COMPARISON_BUILD)  -std=c99 -gdwarf-3 -mstack=compiled:auto:auto     -o ${OBJECTDIR}/string.p1 string.c 
 	@-${MV} ${OBJECTDIR}/string.d ${OBJECTDIR}/string.p1.d 
 	@${FIXDEPS} ${OBJECTDIR}/string.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
+	
+${OBJECTDIR}/sensors.p1: sensors.c  nbproject/Makefile-${CND_CONF}.mk 
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/sensors.p1.d 
+	@${RM} ${OBJECTDIR}/sensors.p1 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c   -mdfp="${DFP_DIR}/xc8"  -fno-short-double -fno-short-float -O0 -fasmfile -maddrqual=ignore -mchp-stack-usage -xassembler-with-cpp -mwarn=-3 -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx32 -Wl,--data-init -mno-keep-startup -mno-osccal -mno-resetbits -mno-save-resetbits -mno-download -mno-stackcall -mno-default-config-bits $(COMPARISON_BUILD)  -std=c99 -gdwarf-3 -mstack=compiled:auto:auto     -o ${OBJECTDIR}/sensors.p1 sensors.c 
+	@-${MV} ${OBJECTDIR}/sensors.d ${OBJECTDIR}/sensors.p1.d 
+	@${FIXDEPS} ${OBJECTDIR}/sensors.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
 endif
 

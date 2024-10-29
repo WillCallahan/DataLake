@@ -147,11 +147,6 @@ extern "C" {
 #define LR_ERR_RX_SMRT_TIME_DENY 20
     
 #define LORA_DATA_BUFFER_SIZE 32
-    
-#ifndef _XTAL_FREQ
-//#define _XTAL_FREQ 31250
-#define _XTAL_FREQ 4000000
-#endif
 
     typedef void(*transmitData)(char data[], unsigned int length);
     

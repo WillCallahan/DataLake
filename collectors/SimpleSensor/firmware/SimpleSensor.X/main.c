@@ -11,9 +11,11 @@
 #include <xc.h>
 #include <stdio.h>
 #include <string.h>
+#include "settings.h"
 #include "uart.h"
 #include "lora.h"
 #include "string.h"
+#include "sensors.h"
 
 #ifndef MAIN_C
 
@@ -39,8 +41,6 @@
 #pragma config IDLOC2 = 0 // Software Revision A
 #pragma config IDLOC3 = 0 // Software Revision B
 
-//#define _XTAL_FREQ 31250
-#define _XTAL_FREQ 4000000
 #define RX TRISC7
 #define TX TRISC6
 #define DEBUG_SWITCH RB5
@@ -51,6 +51,20 @@
 
 #define STR_BUFFER_SIZE 32
 #define USART_SUCCESS_READ_HANDLER &handleInterrupt
+
+#define TEMP_PORT PORTA
+#define TEMP_0_TOGGLE 0b1
+#define TEMP_1_TOGGLE 0b10
+#define TEMP_2_TOGGLE 0b100
+
+#define TEMP_ANSEL ANSELA
+#define TEMP_0_ANSEL 0b1
+#define TEMP_1_ANSEL 0b10
+#define TEMP_2_ANSEL 0b100
+
+#define TEMP_0_CHS 0b00
+#define TEMP_1_CHS 0b00
+#define TEMP_2_CHS 0b00
 
 #endif
 
@@ -96,13 +110,6 @@ void initializeUsart() {
     INTCON = 0b11000000; // Enable Peripheral interrupt and Global Interrupts
 }
 
-int readTemperature() {
-    // TODO Read the temperature
-    static int temperature = 1038;
-    temperature++;
-    return temperature;
-}
-
 void __interrupt() ISR(void) {
     handleUsartInterrupt(USART_SUCCESS_READ_HANDLER);
 }
@@ -128,8 +135,33 @@ void blinkLedStatus() {
     }
 }
 
+void transmitTemperatureWithDebug(char* outputBuffer, int temperature) {
+    if (temperature != INT16_MIN) {
+        wakeLora(putPhrase);
+        sprintf(outputBuffer, "T%d", temperature);
+        sendData(putPhrase, LORA_ADDRESS, outputBuffer);
+        temperature = INT16_MIN;
+    }
+    if (lora_status.LORA_ERROR_CODE > 0) {
+        wakeLora(putPhrase);
+        sprintf(outputBuffer, "ERR=%d,%d", lora_status.LORA_ERROR_CODE, lora_status.READ_OVERFLOW);
+        sendData(putPhrase, LORA_ADDRESS, outputBuffer);
+    }
+    if (DEBUG_SWITCH == 1) {
+        blinkLedStatus();
+        RA0 = 0;
+    }
+}
+
+void readAndTransmitTemperature(char* outputBuffer, uint8_t tempToggle, uint8_t tempChannel) {
+    CLRWDT();
+    int temperature = readTemperature(&TEMP_PORT, tempToggle, tempChannel);
+    transmitTemperatureWithDebug(outputBuffer, temperature);
+}
+
 void main(void) {
     initializePIC();
+    initializeAdc();
     initializeUsart();
     initializeLora(putPhrase, LORA_ADDRESS);
     
@@ -138,30 +170,16 @@ void main(void) {
     strcpy(outputBuffer, "INIT");
     sendData(putPhrase, LORA_ADDRESS, outputBuffer);
     
-    int temperature = INT16_MIN;
-    
     while (1) {
         if (DEBUG_SWITCH == 1) {
             RA0 = 1; // Blink an LED for status
         }
-        temperature = readTemperature();
-        CLRWDT();
-        if (temperature != INT16_MIN) {
-            wakeLora(putPhrase);
-            sprintf(outputBuffer, "T%d", temperature);
-            sendData(putPhrase, LORA_ADDRESS, outputBuffer);
-            temperature = INT16_MIN;
-        }
-        if (lora_status.LORA_ERROR_CODE > 0) {
-            wakeLora(putPhrase);
-            sprintf(outputBuffer, "ERR=%d,%d", lora_status.LORA_ERROR_CODE, lora_status.READ_OVERFLOW);
-            sendData(putPhrase, LORA_ADDRESS, outputBuffer);
-        }
-        
-        if (DEBUG_SWITCH == 1) {
-            blinkLedStatus();
-            RA0 = 0;
-        }
+
+        readAndTransmitTemperature(outputBuffer, TEMP_0_TOGGLE, TEMP_0_CHS);
+        __delay_us(500); // Wait before the next read
+        readAndTransmitTemperature(outputBuffer, TEMP_1_TOGGLE, TEMP_1_CHS);
+        __delay_us(500); // Wait before the next read
+        readAndTransmitTemperature(outputBuffer, TEMP_2_TOGGLE, TEMP_2_CHS);
         
         sleepLora(putPhrase);
         SLEEP();
