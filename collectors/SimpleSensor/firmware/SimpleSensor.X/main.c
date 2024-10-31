@@ -61,6 +61,8 @@
 #define TEMP_1_CHS 0b010
 #define TEMP_2_CHS 0b100
 
+#define DEBUG_LED RA5
+
 #endif
 
 void initializePIC(void) {
@@ -112,16 +114,16 @@ void __interrupt() ISR(void) {
 void blinkLedTimes(int times) {
     __delay_ms(1000);
     for (int i = 0; i != times; i++) {
-        RA0 = 1;
+        DEBUG_LED = 1;
         __delay_ms(500);
-        RA0 = 0;
+        DEBUG_LED = 0;
         __delay_ms(500);
         CLRWDT();
     }
 }
 
 void blinkLedStatus() {
-    RA0 = 0;
+    DEBUG_LED = 0;
     if (lora_status.LORA_ERROR_CODE) {
         blinkLedTimes(2);
     }
@@ -144,7 +146,7 @@ void transmitTemperatureWithDebug(char* outputBuffer, int temperature) {
     }
     if (DEBUG_SWITCH == 1) {
         blinkLedStatus();
-        RA0 = 0;
+        DEBUG_LED = 0;
     }
 }
 
@@ -167,7 +169,7 @@ void main(void) {
     
     while (1) {
         if (DEBUG_SWITCH == 1) {
-            RA0 = 1; // Blink an LED for status
+            DEBUG_LED = 1; // Blink an LED for status
         }
 
         readAndTransmitTemperature(outputBuffer, TEMP_0_TOGGLE, TEMP_0_CHS);
