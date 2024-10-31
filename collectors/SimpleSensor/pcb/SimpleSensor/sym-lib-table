@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Microchip")(type "KiCad")(uri "${KIPRJMOD}/symbols/2024-10-31_02-53-05.kicad_sym")(options "")(descr ""))
+)
