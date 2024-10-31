@@ -8,7 +8,8 @@
 #include "settings.h"
 #include "sensors.h"
 
-void initializeAdc() {
+void initializeAdc(void) {
+    // Right-justified result and FOSC/8
     ADCON1 = 0b10010000;
 }
 
@@ -22,7 +23,8 @@ int readTemperature(volatile unsigned char* portRegister,
     // Let the TMP35 sensor startup
     __delay_us(50);
     
-    ADCON0 = 1 & (channelSelect << 2);
+    // Enable the ADON ADC conversion bit and select the input channel
+    ADCON0 = 1 | (unsigned char)(channelSelect << 2);
     
     // Allow the ADC acquisition to occur
     __delay_us(10);

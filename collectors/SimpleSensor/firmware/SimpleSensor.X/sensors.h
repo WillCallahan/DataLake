@@ -16,7 +16,7 @@ extern "C" {
     /**
      * Initializes the ADC controller for use by the {@code readTemperature}
      */
-    void initializeAdc();
+    void initializeAdc(void);
     
     /**
      * Turns on the temperature sensor and reads the temperature

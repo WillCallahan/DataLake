@@ -57,14 +57,9 @@
 #define TEMP_1_TOGGLE 0b10
 #define TEMP_2_TOGGLE 0b100
 
-#define TEMP_ANSEL ANSELA
-#define TEMP_0_ANSEL 0b1
-#define TEMP_1_ANSEL 0b10
-#define TEMP_2_ANSEL 0b100
-
-#define TEMP_0_CHS 0b00
-#define TEMP_1_CHS 0b00
-#define TEMP_2_CHS 0b00
+#define TEMP_0_CHS 0b000
+#define TEMP_1_CHS 0b010
+#define TEMP_2_CHS 0b100
 
 #endif
 
@@ -75,13 +70,13 @@ void initializePIC(void) {
     OSCCONbits.SPLLEN = 0; // Disable 4x PLL Clock Multiplier
     
     // Set input/output
-    TRISA = 0x00;
+    TRISA = 0b00000111; // Set RA<0..2> to input for temperature sensors
     TRISB = 0b00100000; // Set RB5 to input for Debug Switch
     TRISC = 0x00;
     PORTA = 0x00;
     PORTB = 0x00;
     PORTC = 0x00;
-    ANSELA = 0x00;
+    ANSELA = 0b00000111; // Enable RA<0..2> analog input for temperature sensors
     ANSELB = 0x00;
    
     WPUE = 0; //Enable Weak Pull-ups
