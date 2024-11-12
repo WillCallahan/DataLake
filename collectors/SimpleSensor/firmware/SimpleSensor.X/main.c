@@ -52,14 +52,19 @@
 #define STR_BUFFER_SIZE 32
 #define USART_SUCCESS_READ_HANDLER &handleInterrupt
 
-#define TEMP_PORT PORTA
-#define TEMP_0_TOGGLE 0b1
-#define TEMP_1_TOGGLE 0b10
-#define TEMP_2_TOGGLE 0b100
+#define TEMP_TOGGLE_PORT PORTC
+// These are the address offsets start at adress TEMP_TOGGLE_PORT
+#define TEMP_0_TOGGLE 0
+#define TEMP_1_TOGGLE 1
+#define TEMP_2_TOGGLE 2
 
-#define TEMP_0_CHS 0b000
-#define TEMP_1_CHS 0b010
-#define TEMP_2_CHS 0b100
+#define TEMP_0_CHS 0b00
+#define TEMP_1_CHS 0b01
+#define TEMP_2_CHS 0b10
+
+#define SENSOR_ID_0 'A'
+#define SENSOR_ID_1 'B'
+#define SENSOR_ID_2 'C'
 
 #define DEBUG_LED RA5
 
@@ -74,7 +79,7 @@ void initializePIC(void) {
     // Set input/output
     TRISA = 0b00000111; // Set RA<0..2> to input for temperature sensors
     TRISB = 0b00100000; // Set RB5 to input for Debug Switch
-    TRISC = 0x00;
+    TRISC = 0x00;       // Set RC<0..2> to output for temp power toggle
     PORTA = 0x00;
     PORTB = 0x00;
     PORTC = 0x00;
@@ -132,10 +137,10 @@ void blinkLedStatus() {
     }
 }
 
-void transmitTemperatureWithDebug(char* outputBuffer, int temperature) {
+void transmitTemperatureWithDebug(char* outputBuffer, int temperature, char sensorId) {
     if (temperature != INT16_MIN) {
         wakeLora(putPhrase);
-        sprintf(outputBuffer, "T%d", temperature);
+        sprintf(outputBuffer, "T%c%d", sensorId, temperature);
         sendData(putPhrase, LORA_ADDRESS, outputBuffer);
         temperature = INT16_MIN;
     }
@@ -150,10 +155,10 @@ void transmitTemperatureWithDebug(char* outputBuffer, int temperature) {
     }
 }
 
-void readAndTransmitTemperature(char* outputBuffer, uint8_t tempToggle, uint8_t tempChannel) {
+void readAndTransmitTemperature(char* outputBuffer, uint8_t tempToggle, uint8_t tempChannel, char sensorId) {
     CLRWDT();
-    int temperature = readTemperature(&TEMP_PORT, tempToggle, tempChannel);
-    transmitTemperatureWithDebug(outputBuffer, temperature);
+    int temperature = readTemperature(&TEMP_TOGGLE_PORT, tempToggle, tempChannel);
+    transmitTemperatureWithDebug(outputBuffer, temperature, sensorId);
 }
 
 void main(void) {
@@ -172,11 +177,11 @@ void main(void) {
             DEBUG_LED = 1; // Blink an LED for status
         }
 
-        readAndTransmitTemperature(outputBuffer, TEMP_0_TOGGLE, TEMP_0_CHS);
+        readAndTransmitTemperature(outputBuffer, TEMP_0_TOGGLE, TEMP_0_CHS, SENSOR_ID_0);
         __delay_us(500); // Wait before the next read
-        readAndTransmitTemperature(outputBuffer, TEMP_1_TOGGLE, TEMP_1_CHS);
+        readAndTransmitTemperature(outputBuffer, TEMP_1_TOGGLE, TEMP_1_CHS, SENSOR_ID_1);
         __delay_us(500); // Wait before the next read
-        readAndTransmitTemperature(outputBuffer, TEMP_2_TOGGLE, TEMP_2_CHS);
+        readAndTransmitTemperature(outputBuffer, TEMP_2_TOGGLE, TEMP_2_CHS, SENSOR_ID_1);
         
         sleepLora(putPhrase);
         SLEEP();

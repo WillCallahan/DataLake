@@ -18,16 +18,18 @@ int readTemperature(volatile unsigned char* portRegister,
         uint8_t channelSelect) {
     
     // Turn on the TMP35 sensor
-    *(portRegister + toggleRegister) = 1;    
+    *portRegister = (unsigned char)(1 << toggleRegister);
     
-    // Let the TMP35 sensor startup
-    __delay_us(50);
+    // Charge the capacitor, Let the TMP35 sensor startup
+    __delay_us(100);
     
     // Enable the ADON ADC conversion bit and select the input channel
     ADCON0 = 1 | (unsigned char)(channelSelect << 2);
     
-    // Allow the ADC acquisition to occur
-    __delay_us(10);
+    // Allow the ADC acquisition to occur, see Table 15-1 with FOSC/8 at 4MHz
+    __delay_us(2);
+    
+    GO_nDONE = 1;
     
     while (GO_nDONE);
     
@@ -35,7 +37,7 @@ int readTemperature(volatile unsigned char* portRegister,
     
     
     // Turn off the TMP35 sensor
-    *(portRegister + toggleRegister) = 0;
+    *portRegister = (unsigned char)(0 << toggleRegister);
     
     return temperature;
 }
