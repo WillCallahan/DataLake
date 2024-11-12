@@ -181,7 +181,7 @@ void main(void) {
         __delay_us(500); // Wait before the next read
         readAndTransmitTemperature(outputBuffer, TEMP_1_TOGGLE, TEMP_1_CHS, SENSOR_ID_1);
         __delay_us(500); // Wait before the next read
-        readAndTransmitTemperature(outputBuffer, TEMP_2_TOGGLE, TEMP_2_CHS, SENSOR_ID_1);
+        readAndTransmitTemperature(outputBuffer, TEMP_2_TOGGLE, TEMP_2_CHS, SENSOR_ID_2);
         
         sleepLora(putPhrase);
         SLEEP();
