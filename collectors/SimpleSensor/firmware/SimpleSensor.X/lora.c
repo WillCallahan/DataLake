@@ -40,6 +40,11 @@ void handleInterrupt(unsigned char character) {
     LORA_R_DATA[LORA_PARSE_INDEX] = character;
 }
 
+/**
+ * Waits for any response to be received from the LoRa RYLR998 module
+ * 
+ * @param timeout Maximum time to wait in milliseconds
+ */
 void waitResponse(int timeout) {
     int maxWait = timeout;
     while (lora_status.WAIT_RESPONSE && maxWait > 0) {
@@ -70,12 +75,26 @@ void waitResponse(int timeout) {
     }
 }
 
+/**
+ * Gets the estimated time required to transmit data via the LoRa RYLR998 module
+ * 
+ * @param payloadSize Size of the payload to transmit in bytes
+ * @return The minimum time in milliseconds required to transmit the payload
+ * @seealso https://www.thethingsnetwork.org/airtime-calculator
+ */
 int getTrasmissionTime(int payloadSize) {
     const int additionalBytes = 8; // Additional bytes introduced by LoRa protocol
     int totalTime = (payloadSize + additionalBytes) * LR_COMMAND_AIR_TIME_PER_BYTE_MS;
     return totalTime;
 }
 
+/**
+ * Wait for an exact response from the LoRa RYLR998 module
+ * 
+ * @param response Response to wait for, terminated with the nul character
+ * @param timeout Maximum time in milliseconds to wait for a response
+ * @return Whether or not a successful response match was met
+ */
 __bit waitResponseExact(char* response, int timeout) {
     size_t isMatch = strcompare(response, LORA_R_DATA, strlen(response));
     
