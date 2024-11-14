@@ -45,9 +45,9 @@
 #define TX TRISC6
 #define DEBUG_SWITCH RB5
 #define BAUD 9600
-#define DIVIDER (_XTAL_FREQ / ((4UL * BAUD) - 1)) //Based off manual
+#define DIVIDER (_XTAL_FREQ / ((4UL * BAUD) - 1)) // Based off manual
 
-#define LORA_ADDRESS 1
+#define LORA_ADDRESS 1 // Target LoRa receiver address
 
 #define STR_BUFFER_SIZE 32
 #define USART_SUCCESS_READ_HANDLER &handleInterrupt
@@ -58,9 +58,9 @@
 #define TEMP_1_TOGGLE 1
 #define TEMP_2_TOGGLE 2
 
-#define TEMP_0_CHS 0b00
-#define TEMP_1_CHS 0b01
-#define TEMP_2_CHS 0b10
+#define TEMP_0_CHS 0b00 // Temp Sensor A ADC Channel Selection
+#define TEMP_1_CHS 0b01 // Temp Sensor B ADC Channel Selection
+#define TEMP_2_CHS 0b10 // Temp Sensor C ADC Channel Selection
 
 #define SENSOR_ID_0 'A'
 #define SENSOR_ID_1 'B'
