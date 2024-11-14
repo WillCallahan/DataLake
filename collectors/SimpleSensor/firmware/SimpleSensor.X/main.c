@@ -129,12 +129,16 @@ void blinkLedTimes(int times) {
 
 void blinkLedStatus() {
     DEBUG_LED = 0;
+    if (DEBUG_SWITCH == 0) {
+        return;
+    }
     if (lora_status.LORA_ERROR_CODE) {
         blinkLedTimes(2);
     }
     if (uart_status.ERR) {
         blinkLedTimes(3);
     }
+    DEBUG_LED = 0;
 }
 
 void transmitTemperatureWithDebug(char* outputBuffer, int temperature, char sensorId) {
@@ -149,10 +153,7 @@ void transmitTemperatureWithDebug(char* outputBuffer, int temperature, char sens
         sprintf(outputBuffer, "ERR=%d,%d,%d", lora_status.LORA_ERROR_CODE, lora_status.READ_OVERFLOW, lora_status.WRITE_OVERFLOW);
         sendData(putPhrase, LORA_ADDRESS, outputBuffer);
     }
-    if (DEBUG_SWITCH == 1) {
-        blinkLedStatus();
-        DEBUG_LED = 0;
-    }
+    blinkLedStatus();
 }
 
 void readAndTransmitTemperature(char* outputBuffer, uint8_t tempToggle, uint8_t tempChannel, char sensorId) {
