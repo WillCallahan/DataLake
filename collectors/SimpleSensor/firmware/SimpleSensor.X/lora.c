@@ -14,6 +14,8 @@
 #include "string.h"
 
 #define LR_COMMAND_BUFFER_SIZE 32
+#define LR_COMMAND_AIR_TIME_PER_BYTE_MS 145 // Based on a SF=11, BW=500MHz
+#define LR_COMMAND_DEFAULT_WAIT_MS 500
 
 void handleInterrupt(unsigned char character) {
     lora_status.WAIT_RESPONSE = 0;
@@ -38,10 +40,10 @@ void handleInterrupt(unsigned char character) {
     LORA_R_DATA[LORA_PARSE_INDEX] = character;
 }
 
-void waitResponse() {
-    int maxWait = 20;
+void waitResponse(int timeout) {
+    int maxWait = timeout;
     while (lora_status.WAIT_RESPONSE && maxWait > 0) {
-        __delay_ms(100);
+        __delay_ms(1);
         maxWait--;
     }
     if (maxWait == 0) {
@@ -49,9 +51,9 @@ void waitResponse() {
         return;
     }
     
-    maxWait = 30;
+    maxWait = timeout;
     while (lora_status.PARSING) {
-        __delay_ms(5);
+        __delay_ms(1);
         maxWait--;
         continue;
     }
@@ -60,7 +62,7 @@ void waitResponse() {
         return;
     }
     
-    int isError = strcompare("+ERR=", LORA_R_DATA, 5);
+    int isError = strcompare(LR_ERR, LORA_R_DATA, 5);
     if (isError) {
         LORA_ERROR_COUNT++;
     } else {
@@ -68,12 +70,17 @@ void waitResponse() {
     }
 }
 
-__bit waitResponseExact(char* response) {
-    signed int timeout = 500; //TODO Make this a parameter
+int getTrasmissionTime(int payloadSize) {
+    const int additionalBytes = 8; // Additional bytes introduced by LoRa protocol
+    int totalTime = (payloadSize + additionalBytes) * LR_COMMAND_AIR_TIME_PER_BYTE_MS;
+    return totalTime;
+}
+
+__bit waitResponseExact(char* response, int timeout) {
     size_t isMatch = strcompare(response, LORA_R_DATA, strlen(response));
     
     while (!isMatch && timeout > 0) {
-        int isError = strcompare("+ERR=", LORA_R_DATA, 5);
+        int isError = strcompare(LR_ERR, LORA_R_DATA, 5);
         if (isError) {
             return 0;
         }
@@ -116,22 +123,22 @@ void sendData(transmitData transmit, char address, char data[]) {
     strcpy(&command[currentIndex], data);
     
     transmitWithEol(transmit, command, strlen(command));
-    waitResponseExact(LR_OK);
-    __delay_ms(400);
+    int transmissionTimeout = getTrasmissionTime((int)strlen(data));
+    waitResponseExact(LR_OK, transmissionTimeout);
 }
 
 void sleepLora(transmitData transmit) {
     char command[LR_COMMAND_BUFFER_SIZE];
     strconcat(command, LR_COMMAND_BUFFER_SIZE, 2, LS_MODE, "1");
     transmitWithEol(transmit, command, strlen(command));
-    waitResponseExact(LR_OK);
+    waitResponseExact(LR_OK, LR_COMMAND_DEFAULT_WAIT_MS);
 }
 
 void wakeLora(transmitData transmit) {
     char command[LR_COMMAND_BUFFER_SIZE];
     strconcat(command, LR_COMMAND_BUFFER_SIZE, 2, LS_MODE, "0");
     transmitWithEol(transmit, command, strlen(command));
-    waitResponseExact(LR_OK);
+    waitResponseExact(LR_OK, LR_COMMAND_DEFAULT_WAIT_MS);
 }
 
 void initializeLora(transmitData transmit, char address) {
@@ -143,36 +150,36 @@ void initializeLora(transmitData transmit, char address) {
     strcpy(command, LC_RESET);
     transmitWithEol(transmit, command, strlen(command));
     __delay_ms(100); // Wait for the reset to complete
-    waitResponseExact(LR_RESET_RDY);
+    waitResponseExact(LR_RESET_RDY, LR_COMMAND_DEFAULT_WAIT_MS);
     
     strcpy(command, LS_ADDRESS);
     sprintf(&command[strlen(command)], "%d", address);
     transmitWithEol(transmit, command, strlen(command));
-    waitResponse();
+    waitResponse(LR_COMMAND_DEFAULT_WAIT_MS);
     __delay_ms(100);
     
     strconcat(command, LR_COMMAND_BUFFER_SIZE, 2, LS_NETID, "18");
     transmitWithEol(transmit, command, strlen(command));
-    waitResponse();
+    waitResponse(LR_COMMAND_DEFAULT_WAIT_MS);
     __delay_ms(100);
     
     strconcat(command, LR_COMMAND_BUFFER_SIZE, 2, LS_BAND, "915000000");
     transmitWithEol(transmit, command, strlen(command));
-    waitResponse();
+    waitResponse(LR_COMMAND_DEFAULT_WAIT_MS);
     __delay_ms(100);
     
     strconcat(command, LR_COMMAND_BUFFER_SIZE, 2, LS_PARAM, "11,9,4,12");
     transmitWithEol(transmit, command, strlen(command));
-    waitResponse();
+    waitResponse(LR_COMMAND_DEFAULT_WAIT_MS);
     __delay_ms(100);
 
     strconcat(command, LR_COMMAND_BUFFER_SIZE, 2, LS_CRFOP, "13");
     transmitWithEol(transmit, command, strlen(command));
-    waitResponseExact(LR_OK);
+    waitResponseExact(LR_OK, LR_COMMAND_DEFAULT_WAIT_MS);
     __delay_ms(100);
     
     strconcat(command, LR_COMMAND_BUFFER_SIZE, 2, LS_MODE, "0");
     transmitWithEol(transmit, command, strlen(command));
-    waitResponseExact(LR_OK);
+    waitResponseExact(LR_OK, LR_COMMAND_DEFAULT_WAIT_MS);
     __delay_ms(100);
 }

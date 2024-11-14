@@ -144,9 +144,9 @@ void transmitTemperatureWithDebug(char* outputBuffer, int temperature, char sens
         sendData(putPhrase, LORA_ADDRESS, outputBuffer);
         temperature = INT16_MIN;
     }
-    if (lora_status.LORA_ERROR_CODE > 0) {
+    if (lora_status.LORA_ERROR_CODE > 0 || lora_status.READ_OVERFLOW == 1 || lora_status.WRITE_OVERFLOW == 1) {
         wakeLora(putPhrase);
-        sprintf(outputBuffer, "ERR=%d,%d", lora_status.LORA_ERROR_CODE, lora_status.READ_OVERFLOW);
+        sprintf(outputBuffer, "ERR=%d,%d,%d", lora_status.LORA_ERROR_CODE, lora_status.READ_OVERFLOW, lora_status.WRITE_OVERFLOW);
         sendData(putPhrase, LORA_ADDRESS, outputBuffer);
     }
     if (DEBUG_SWITCH == 1) {
@@ -178,9 +178,7 @@ void main(void) {
         }
 
         readAndTransmitTemperature(outputBuffer, TEMP_0_TOGGLE, TEMP_0_CHS, SENSOR_ID_0);
-        __delay_us(500); // Wait before the next read
         readAndTransmitTemperature(outputBuffer, TEMP_1_TOGGLE, TEMP_1_CHS, SENSOR_ID_1);
-        __delay_us(500); // Wait before the next read
         readAndTransmitTemperature(outputBuffer, TEMP_2_TOGGLE, TEMP_2_CHS, SENSOR_ID_2);
         
         sleepLora(putPhrase);
