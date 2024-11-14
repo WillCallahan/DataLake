@@ -95,7 +95,7 @@ __bit waitResponseExact(char* response, int timeout) {
 }
 
 void transmitWithEol(transmitData transmit, char data[], unsigned int length) {
-    if (length + 1 > LR_COMMAND_BUFFER_SIZE) {
+    if (length + 2 > LR_COMMAND_BUFFER_SIZE) {
         lora_status.WRITE_OVERFLOW = 1;
         return;
     }
