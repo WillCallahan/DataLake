@@ -156,30 +156,24 @@ void initializeLora(transmitData transmit, char address) {
     sprintf(&command[strlen(command)], "%d", address);
     transmitWithEol(transmit, command, strlen(command));
     waitResponse(LR_COMMAND_DEFAULT_WAIT_MS);
-    __delay_ms(100);
     
     strconcat(command, LR_COMMAND_BUFFER_SIZE, 2, LS_NETID, "18");
     transmitWithEol(transmit, command, strlen(command));
     waitResponse(LR_COMMAND_DEFAULT_WAIT_MS);
-    __delay_ms(100);
     
     strconcat(command, LR_COMMAND_BUFFER_SIZE, 2, LS_BAND, "915000000");
     transmitWithEol(transmit, command, strlen(command));
     waitResponse(LR_COMMAND_DEFAULT_WAIT_MS);
-    __delay_ms(100);
     
     strconcat(command, LR_COMMAND_BUFFER_SIZE, 2, LS_PARAM, "11,9,4,12");
     transmitWithEol(transmit, command, strlen(command));
     waitResponse(LR_COMMAND_DEFAULT_WAIT_MS);
-    __delay_ms(100);
 
     strconcat(command, LR_COMMAND_BUFFER_SIZE, 2, LS_CRFOP, "13");
     transmitWithEol(transmit, command, strlen(command));
     waitResponseExact(LR_OK, LR_COMMAND_DEFAULT_WAIT_MS);
-    __delay_ms(100);
     
     strconcat(command, LR_COMMAND_BUFFER_SIZE, 2, LS_MODE, "0");
     transmitWithEol(transmit, command, strlen(command));
     waitResponseExact(LR_OK, LR_COMMAND_DEFAULT_WAIT_MS);
-    __delay_ms(100);
 }
