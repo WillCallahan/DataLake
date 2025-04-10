@@ -2,7 +2,7 @@
 
 The DataLake system is an integrated platform designed for the systematic collection of meteorological and limnological data from lacustrine environments to support scientific research. This system quantifies key environmental parameters, including air temperature, photosynthetically active radiation (PAR), and water temperatures across the epilimnion, metalimnion, and hypolimnion; the three primary thermal strata of lakes.
 
-![SensorOverview](docs/images/Sensor_Overview.png)
+![SensorOverview](docs/images/SensorOverview.png)
 
 ## Lake Sensor: Design and Instrumentation
 
